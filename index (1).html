@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Құдалық — Әбілнұр & Жаңару</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 16px;
+    background: #f7f5f0;
+    font-family: 'Manrope', sans-serif;
+  }
+  .container {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 32px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 1.2s cubic-bezier(0.22,1,0.36,1);
+  }
+  .container.visible { opacity: 1; transform: translateY(0); }
+
+  .ornament { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+  .ornament.bottom { margin-bottom: 0; margin-top: 48px; }
+  .ornament-dot { width: 6px; height: 6px; border-radius: 50%; background: #b8a88a; }
+  .ornament-bar { width: 80px; height: 1px; background: #b8a88a; }
+
+  .subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 6px; text-transform: uppercase;
+    color: #b8a88a; margin-bottom: 32px;
+  }
+  .names {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px; font-weight: 500;
+    color: #2c2c2c; line-height: 1.1; letter-spacing: 2px;
+  }
+  .ampersand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 400; font-style: italic;
+    color: #b8a88a; margin: 12px 0;
+  }
+  .divider { width: 40px; height: 1px; background: #d4cfc4; margin: 36px 0; }
+
+  .details { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; }
+  .detail-block { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .detail-label {
+    font-size: 9px; font-weight: 500;
+    letter-spacing: 3px; text-transform: uppercase; color: #a09882;
+  }
+  .detail-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-weight: 500; color: #2c2c2c;
+  }
+  .detail-dot { color: #d4cfc4; font-size: 8px; margin-top: 12px; }
+
+  .venue { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .venue-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 600; color: #2c2c2c; margin-top: 4px;
+  }
+  .venue-addr { font-size: 13px; font-weight: 400; color: #7a7468; }
+
+  .form-section {
+    width: 100%; display: flex; flex-direction: column;
+    align-items: center; gap: 16px;
+  }
+  .form-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px; font-weight: 500; color: #2c2c2c;
+  }
+  .form-subtitle { font-size: 12px; font-weight: 400; color: #a09882; margin-bottom: 8px; }
+
+  .toggle-row { display: flex; gap: 12px; margin-bottom: 8px; }
+  .toggle-btn {
+    padding: 12px 32px; border: 1px solid #d4cfc4; border-radius: 4px;
+    background: transparent; font-family: 'Manrope', sans-serif;
+    font-size: 14px; font-weight: 400; color: #7a7468;
+    cursor: pointer; transition: all 0.3s ease;
+  }
+  .toggle-btn.active {
+    background: #2c2c2c; border-color: #2c2c2c; color: #f7f5f0;
+  }
+
+  .input {
+    width: 100%; max-width: 320px; padding: 14px 0;
+    border: none; border-bottom: 1px solid #d4cfc4;
+    background: transparent; font-family: 'Manrope', sans-serif;
+    font-size: 15px; font-weight: 400; color: #2c2c2c;
+    outline: none; text-align: center;
+  }
+  .input::placeholder { color: #bbb5a7; }
+
+  .submit-btn {
+    margin-top: 12px; padding: 14px 48px; border: none; border-radius: 4px;
+    background: #2c2c2c; font-family: 'Manrope', sans-serif;
+    font-size: 13px; font-weight: 500; letter-spacing: 2px;
+    text-transform: uppercase; color: #f7f5f0;
+    cursor: pointer; transition: opacity 0.3s ease;
+  }
+  .submit-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .thank-you {
+    display: none; flex-direction: column; align-items: center;
+    gap: 8px; padding: 16px 0;
+  }
+  .thank-you.visible { display: flex; }
+  .checkmark {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 1px solid #2d6a4f; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 22px; color: #2d6a4f; margin-bottom: 8px;
+  }
+  .thank-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 500; color: #2c2c2c; text-align: center;
+  }
+  .thank-sub { font-size: 13px; font-weight: 400; color: #a09882; }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <div class="ornament">
+    <div class="ornament-dot"></div>
+    <div class="ornament-bar"></div>
+    <div class="ornament-dot"></div>
+  </div>
+
+  <p class="subtitle">Құдалық</p>
+  <h1 class="names">Әбілнұр</h1>
+  <div class="ampersand">&</div>
+  <h1 class="names">Жаңару</h1>
+
+  <div class="divider"></div>
+
+  <div class="details">
+    <div class="detail-block">
+      <span class="detail-label">Күні / Дата</span>
+      <span class="detail-value">28 маусым / июня</span>
+    </div>
+    <div class="detail-dot">◆</div>
+    <div class="detail-block">
+      <span class="detail-label">Уақыты / Время</span>
+      <span class="detail-value">13:00</span>
+    </div>
+  </div>
+
+  <div class="venue">
+    <span class="detail-label">Мекенжай / Адрес</span>
+    <span class="venue-name">Ренессанс</span>
+    <span class="venue-addr">ул. Кажымукана, 1</span>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Form -->
+  <div class="form-section" id="formSection">
+    <p class="form-title">Қатысасыз ба?</p>
+    <p class="form-subtitle">Подтвердите ваше присутствие</p>
+
+    <div class="toggle-row">
+      <button class="toggle-btn" id="btnYes" onclick="setAttending(true)">Иә / Да</button>
+      <button class="toggle-btn" id="btnNo" onclick="setAttending(false)">Жоқ / Нет</button>
+    </div>
+
+    <input class="input" type="text" id="nameInput" placeholder="Аты-жөні / Имя">
+    <input class="input" type="tel" id="phoneInput" placeholder="Телефон">
+
+    <button class="submit-btn" id="submitBtn" disabled onclick="handleSubmit()">Жіберу / Отправить</button>
+  </div>
+
+  <!-- Thank you -->
+  <div class="thank-you" id="thankYou">
+    <div class="checkmark">✓</div>
+    <p class="thank-title" id="thankTitle"></p>
+    <p class="thank-sub" id="thankSub"></p>
+  </div>
+
+  <div class="ornament bottom">
+    <div class="ornament-dot"></div>
+    <div class="ornament-bar"></div>
+    <div class="ornament-dot"></div>
+  </div>
+</div>
+
+<script>
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzzD-Ic6ets1SvNAdGcZ1N02lPtN_g1kgYtUiWYrjvHjywf9mNm82ggl0xtCmeQ0a-kuA/exec";
+
+let attending = null;
+
+function setAttending(value) {
+  attending = value;
+  document.getElementById('btnYes').classList.toggle('active', value === true);
+  document.getElementById('btnNo').classList.toggle('active', value === false);
+  updateButton();
+}
+
+function updateButton() {
+  const name = document.getElementById('nameInput').value.trim();
+  document.getElementById('submitBtn').disabled = !name || attending === null;
+}
+
+document.getElementById('nameInput').addEventListener('input', updateButton);
+
+async function handleSubmit() {
+  const name = document.getElementById('nameInput').value.trim();
+  const phone = document.getElementById('phoneInput').value.trim();
+  if (!name || attending === null) return;
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Жіберілуде...';
+
+  try {
+    const params = new URLSearchParams({ name, phone, attending });
+    await fetch(`${GOOGLE_SHEET_URL}?${params}`, { mode: 'no-cors' });
+  } catch {}
+
+  document.getElementById('formSection').style.display = 'none';
+  const ty = document.getElementById('thankYou');
+  ty.classList.add('visible');
+  document.getElementById('thankTitle').textContent = attending
+    ? 'Рахмет! Сізді күтеміз!'
+    : 'Рахмет хабарлағаныңызға!';
+  document.getElementById('thankSub').textContent = attending
+    ? 'Спасибо! Ждём вас 28 июня'
+    : 'Спасибо, что сообщили. Будем скучать!';
+}
+
+// Fade in
+setTimeout(() => document.getElementById('app').classList.add('visible'), 100);
+</script>
+</body>
+</html>
