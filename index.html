@@ -102,6 +102,13 @@
   }
   .input::placeholder { color: #bbb5a7; }
 
+  .count-input {
+    width: 60px; padding: 10px 0; border: none;
+    border-bottom: 1px solid #d4cfc4; background: transparent;
+    font-family: 'Manrope', sans-serif; font-size: 18px;
+    font-weight: 500; color: #2c2c2c; outline: none; text-align: center;
+  }
+
   .submit-btn {
     margin-top: 12px; padding: 14px 48px; border: none; border-radius: 4px;
     background: #2c2c2c; font-family: 'Manrope', sans-serif;
@@ -175,8 +182,11 @@
       <button class="toggle-btn" id="btnNo" onclick="setAttending(false)">Жоқ / Нет</button>
     </div>
 
-    <input class="input" type="text" id="nameInput" placeholder="Аты-жөні / Имя">
-    <input class="input" type="tel" id="phoneInput" placeholder="Телефон">
+    <div id="guestSection" style="display:none; width:100%; max-width:320px; flex-direction:column; align-items:center; gap:16px;">
+      <span class="detail-label" style="margin-top:8px;">Қонақ саны / Кол-во гостей</span>
+      <input type="number" class="count-input" id="countInput" min="1" max="20" value="1" oninput="onCountChange()">
+      <div id="nameFields" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:12px;"></div>
+    </div>
 
     <button class="submit-btn" id="submitBtn" disabled onclick="handleSubmit()">Жіберу / Отправить</button>
   </div>
@@ -196,35 +206,77 @@
 </div>
 
 <script>
-const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzzD-Ic6ets1SvNAdGcZ1N02lPtN_g1kgYtUiWYrjvHjywf9mNm82ggl0xtCmeQ0a-kuA/exec";
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbwO1YnpSDDeoDx67wX5tjRALHZEtAgCSoxwpiQ-v9aVrfYz_6JUAstC0wiByxRSUi1Dag/exec";
 
 let attending = null;
+let guestCount = 1;
+
+function onCountChange() {
+  const val = parseInt(document.getElementById('countInput').value) || 1;
+  const clamped = Math.max(1, Math.min(20, val));
+  if (clamped !== guestCount) {
+    guestCount = clamped;
+    renderNameFields(guestCount);
+  }
+  updateButton();
+}
 
 function setAttending(value) {
   attending = value;
   document.getElementById('btnYes').classList.toggle('active', value === true);
   document.getElementById('btnNo').classList.toggle('active', value === false);
+  const section = document.getElementById('guestSection');
+  if (value === true) {
+    section.style.display = 'flex';
+    guestCount = parseInt(document.getElementById('countInput').value) || 1;
+    renderNameFields(guestCount);
+  } else {
+    section.style.display = 'none';
+  }
   updateButton();
 }
 
-function updateButton() {
-  const name = document.getElementById('nameInput').value.trim();
-  document.getElementById('submitBtn').disabled = !name || attending === null;
+function renderNameFields(n) {
+  const container = document.getElementById('nameFields');
+  container.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const input = document.createElement('input');
+    input.className = 'input guest-name';
+    input.type = 'text';
+    input.placeholder = n === 1 ? 'Аты-жөні / Имя' : `Қонақ ${i + 1} / Гость ${i + 1}`;
+    input.addEventListener('input', updateButton);
+    container.appendChild(input);
+  }
 }
 
-document.getElementById('nameInput').addEventListener('input', updateButton);
+function updateButton() {
+  let valid = attending !== null;
+  if (attending === true) {
+    const names = document.querySelectorAll('.guest-name');
+    valid = names.length > 0 && names[0].value.trim() !== '';
+  }
+  document.getElementById('submitBtn').disabled = !valid;
+}
 
 async function handleSubmit() {
-  const name = document.getElementById('nameInput').value.trim();
-  const phone = document.getElementById('phoneInput').value.trim();
-  if (!name || attending === null) return;
+  if (attending === null) return;
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.textContent = 'Жіберілуде...';
 
+  const names = [];
+  document.querySelectorAll('.guest-name').forEach(input => {
+    const v = input.value.trim();
+    if (v) names.push(v);
+  });
+
   try {
-    const params = new URLSearchParams({ name, phone, attending });
+    const params = new URLSearchParams({
+      names: names.join(', '),
+      count: attending ? names.length : 0,
+      attending,
+    });
     await fetch(`${GOOGLE_SHEET_URL}?${params}`, { mode: 'no-cors' });
   } catch {}
 
@@ -239,7 +291,6 @@ async function handleSubmit() {
     : 'Спасибо, что сообщили. Будем скучать!';
 }
 
-// Fade in
 setTimeout(() => document.getElementById('app').classList.add('visible'), 100);
 </script>
 </body>
