@@ -243,7 +243,7 @@ function renderNameFields(n) {
     const input = document.createElement('input');
     input.className = 'input guest-name';
     input.type = 'text';
-    input.placeholder = n === 1 ? 'Аты-жөні / Имя' : `Қонақ ${i + 1} / Гость ${i + 1}`;
+    input.placeholder = n === 1 ? 'Аты-жөні / Имя' : `Аты-жөні / Имя ${i + 1}`;
     input.addEventListener('input', updateButton);
     container.appendChild(input);
   }
