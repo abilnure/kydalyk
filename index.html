@@ -191,6 +191,10 @@
       <div id="nameFields" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:12px;"></div>
     </div>
 
+    <div id="declineSection" style="display:none; width:100%; max-width:320px; flex-direction:column; align-items:center; gap:12px;">
+      <input class="input" type="text" id="declineName" placeholder="Аты-жөні / Имя" oninput="updateButton()">
+    </div>
+
     <button class="submit-btn" id="submitBtn" disabled onclick="handleSubmit()">Жіберу</button>
   </div>
 
@@ -229,12 +233,15 @@ function setAttending(value) {
   document.getElementById('btnYes').classList.toggle('active', value === true);
   document.getElementById('btnNo').classList.toggle('active', value === false);
   const section = document.getElementById('guestSection');
+  const decline = document.getElementById('declineSection');
   if (value === true) {
     section.style.display = 'flex';
+    decline.style.display = 'none';
     guestCount = parseInt(document.getElementById('countInput').value) || 1;
     renderNameFields(guestCount);
   } else {
     section.style.display = 'none';
+    decline.style.display = 'flex';
   }
   updateButton();
 }
@@ -257,6 +264,8 @@ function updateButton() {
   if (attending === true) {
     const names = document.querySelectorAll('.guest-name');
     valid = names.length > 0 && names[0].value.trim() !== '';
+  } else if (attending === false) {
+    valid = document.getElementById('declineName').value.trim() !== '';
   }
   document.getElementById('submitBtn').disabled = !valid;
 }
@@ -269,10 +278,15 @@ async function handleSubmit() {
   btn.textContent = 'Жіберілуде...';
 
   const names = [];
-  document.querySelectorAll('.guest-name').forEach(input => {
-    const v = input.value.trim();
-    if (v) names.push(v);
-  });
+  if (attending) {
+    document.querySelectorAll('.guest-name').forEach(input => {
+      const v = input.value.trim();
+      if (v) names.push(v);
+    });
+  } else {
+    const dn = document.getElementById('declineName').value.trim();
+    if (dn) names.push(dn);
+  }
 
   try {
     const params = new URLSearchParams({
